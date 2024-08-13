@@ -20,5 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Meetmax"
-include(":app")
- 
+include ':app'
