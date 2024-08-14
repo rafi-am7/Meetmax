@@ -24,13 +24,10 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="10dp"
         android:textColorHint="@color/black"
-        app:boxStrokeColor="@color/colorPrimary"
-        app:startIconTint="@color/black"
-        app:hintTextColor="@color/colorPrimary"
-        app:iconTint="@color/colorPrimary"
+        app:hintTextColor="@color/black"
+        app:boxBackgroundColor="@color/white"
         app:helperTextTextColor="@color/red"
         android:layout_marginEnd="24dp"
-        android:hint="English(UK)"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toRightOf="@+id/sign_up_logo_with_text"
         tools:ignore="DuplicateIds,MissingConstraints">
@@ -172,13 +169,12 @@
 
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/diUserNameInputField"
+                android:id="@+id/sign_up_email"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Your Email"
                 app:counterEnabled="true"
-                app:counterMaxLength="20"
                 app:endIconMode="clear_text"
                 app:errorEnabled="true"
                 app:errorIconDrawable="@drawable/error"
@@ -196,7 +192,7 @@
 
                 <EditText
                     android:textColor="@color/black"
-                    android:id="@+id/diUserNameInput"
+                    android:id="@+id/sign_up_email_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text">
@@ -207,7 +203,8 @@
 
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/diEmailLayout"
+                android:id="@+id/sign_up_full_name"
+                app:counterMaxLength="20"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -224,13 +221,13 @@
                 app:hintEnabled="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/diUserNameInputField"
+                app:layout_constraintTop_toBottomOf="@+id/sign_up_email"
                 app:startIconDrawable="@drawable/ic_smile"
 
                 android:layout_marginTop="10dp">
 
                 <EditText
-                    android:id="@+id/diEmailInput"
+                    android:id="@+id/sign_up_fullname_textview"
                     android:textColor="@color/black"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -240,7 +237,7 @@
 
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/diPasswordLayout"
+                android:id="@+id/sign_up_password"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -256,14 +253,14 @@
                 app:passwordToggleTint="@color/black"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/diEmailLayout"
+                app:layout_constraintTop_toBottomOf="@+id/sign_up_full_name"
                 app:passwordToggleEnabled="true"
                 app:startIconDrawable="@drawable/ic_lock"
 
                 android:layout_marginTop="10dp">
 
                 <EditText
-                    android:id="@+id/diPasswordInput"
+                    android:id="@+id/sign_up_password_text_view"
                     android:textColor="@color/black"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -272,7 +269,7 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/diGenderMenu"
+                android:id="@+id/sign_up_gender"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -285,8 +282,7 @@
                 android:background="@drawable/button_bg_hollow"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/diPasswordLayout"
-
+                app:layout_constraintTop_toBottomOf="@+id/sign_up_password"
                 android:layout_marginTop="10dp">
 
                 <RelativeLayout
@@ -305,6 +301,7 @@
                         android:src="@drawable/ic_gender" />
 
                     <RadioGroup
+                        android:id="@+id/sign_up_gender_radio_group"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_toEndOf="@id/icon_gender"
@@ -313,7 +310,7 @@
                         android:orientation="horizontal">
 
                         <RadioButton
-                            android:id="@+id/radio_male"
+                            android:id="@+id/sign_up_radio_male"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/black"
@@ -321,7 +318,7 @@
                             android:text="Male" />
 
                         <RadioButton
-                            android:id="@+id/radio_female"
+                            android:id="@+id/sign_up_radio_female"
                             android:layout_width="wrap_content"
                             android:textSize="14sp"
                             android:layout_marginStart="8dp"
@@ -335,7 +332,7 @@
 
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/diPickBirthDateButton"
+                android:id="@+id/date_of_birth_button"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
@@ -356,7 +353,7 @@
                 app:icon="@drawable/ic_calender"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/diGenderMenu"
+                app:layout_constraintTop_toBottomOf="@+id/sign_up_gender"
 
                 android:layout_marginTop="24dp"/>
 
@@ -375,7 +372,7 @@
                 app:iconTint="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/diPickBirthDateButton" />
+                app:layout_constraintTop_toBottomOf="@+id/date_of_birth_button" />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:orientation="horizontal"
@@ -391,6 +388,7 @@
                     android:layout_marginRight="10dp"
                     android:layout_height="wrap_content"/>
                 <TextView
+                    android:id="@+id/sign_in_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="18sp"
