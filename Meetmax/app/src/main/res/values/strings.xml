@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Meetmax</string>
+    <string name="sign_up_welcome_text">Create an account to continue and connect with the people.</string>
+    <string name="sign_in_welcome_text">Welcome back, you’ve been missed!</string>
 </resources>
