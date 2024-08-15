@@ -233,22 +233,47 @@ tools:context=".SignIn">
                 android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
+        <RelativeLayout
+            android:id="@+id/sign_in_remember_me_layout"
+            app:layout_constraintTop_toBottomOf="@+id/sign_in_password_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <CheckBox
+                android:id="@+id/remeber_me_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:layout_centerVertical="true"
+                android:text="Remember me"/>
+            <TextView
+                android:id="@+id/forget_password_button"
+                android:clickable="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_centerVertical="true"
+                android:text="Forgot Password?"
+                android:textColor="@color/black"
+                android:layout_alignParentRight="true"
+                />
+
+        </RelativeLayout>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/sign_in_button"
             style="@style/Widget.MaterialComponents.Button.Icon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
             android:layout_marginBottom="10dp"
             android:backgroundTint="@color/colorPrimary"
-            android:text="Sign Up"
+            android:text="Sign In"
             android:textColor="@color/white"
             app:iconGravity="end"
             app:iconTint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/sign_in_password_layout" />
+            app:layout_constraintTop_toBottomOf="@+id/sign_in_remember_me_layout" />
         <LinearLayout
             android:layout_width="wrap_content"
             android:orientation="horizontal"

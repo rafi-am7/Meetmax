@@ -26,10 +26,10 @@ import java.util.ArrayList;
 public class SignUp extends AppCompatActivity {
     AutoCompleteTextView languageTextView;
     EditText fullNameEditText, emailEditText, passwordEditText;
-    ArrayAdapter<String> languageAdapter;
+    public static ArrayAdapter<String> languageAdapter;
     MaterialButton signUpButton, logInWithGoogleButton, logInWithAppleButton, dateOfBirthButton;
     TextView signInButton;
-    ArrayList<String> languageList;
+    public static ArrayList<String> languageList;
     MaterialDatePicker.Builder<Long> materialDateBuilder;
     String birthdate,showDate;
     public static String curLanguage;
@@ -88,7 +88,11 @@ public class SignUp extends AppCompatActivity {
         languageTextView =findViewById(R.id.language_manu_text_view);
         languageAdapter=new ArrayAdapter<>(this,R.layout.auto_complete_text_view_list,languageList);
         languageTextView.setAdapter(languageAdapter);
-        if (languageList != null && !languageList.isEmpty()) {
+        if(curLanguage!=null)
+        {
+            languageTextView.setText(curLanguage, false);
+        }
+        else if (languageList != null && !languageList.isEmpty()) {
             languageTextView.setText(languageList.get(0), false);
         }
 
@@ -132,7 +136,6 @@ public class SignUp extends AppCompatActivity {
     {
         Intent intent = new Intent(SignUp.this, SignIn.class);
         startActivity(intent);
-        finish();
     }
     void signUp()
     {
@@ -149,7 +152,7 @@ public class SignUp extends AppCompatActivity {
         }
 
     }
-    void setLanguage()
+    public static void setLanguage()
     {
     }
     void logInWithGoogle()
