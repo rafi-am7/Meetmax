@@ -13,4 +13,9 @@
     <color name="yellow">#FFAB00</color>
     <color name="blue">#377DFF</color>
 
+    <color name="colorPrimary">#377DFF</color>
+    <color name="gray">#4E5D78</color>
+    <color name="light_gray">#0D4E5D78</color>
+
+
 </resources>
