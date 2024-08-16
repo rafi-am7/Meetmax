@@ -24,7 +24,7 @@ public class SignIn extends AppCompatActivity {
     AutoCompleteTextView languageTextView;
     EditText passwordEditText, emailEditText;
     String email, password;
-    MaterialButton signInButton;
+    MaterialButton signInButton,logInWithGoogle;
     TextView signUpButton,forgetPasswordButton;
     CheckBox rememberMeCheckBox;
     boolean checkBoxIsChecked;
@@ -45,6 +45,7 @@ public class SignIn extends AppCompatActivity {
         signUpButton=findViewById(R.id.sign_up_button);
         forgetPasswordButton=findViewById(R.id.forget_password_button);
         rememberMeCheckBox=findViewById(R.id.remeber_me_checkbox);
+        logInWithGoogle=findViewById(R.id.log_in_with_google_button);
 
 
 
@@ -66,7 +67,13 @@ public class SignIn extends AppCompatActivity {
                 SignUp.setLanguage();
             }
         });
-
+        logInWithGoogle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(SignIn.this,MainActivity.class));
+                finish();
+            }
+        });
         forgetPasswordButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
