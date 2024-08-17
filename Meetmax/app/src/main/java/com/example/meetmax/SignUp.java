@@ -161,6 +161,8 @@ public class SignUp extends AppCompatActivity {
     }
     void logInWithApple()
     {
+        startActivity(new Intent(SignUp.this,MainActivity.class));
+        finish();
 
     }
 

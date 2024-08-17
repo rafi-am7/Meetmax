@@ -70,8 +70,7 @@ public class SignIn extends AppCompatActivity {
         logInWithGoogle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(SignIn.this,MainActivity.class));
-                finish();
+
             }
         });
         forgetPasswordButton.setOnClickListener(new View.OnClickListener() {

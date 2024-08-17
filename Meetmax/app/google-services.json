@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "363355047095",
+    "project_id": "meetmax-9ee28",
+    "storage_bucket": "meetmax-9ee28.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:363355047095:android:ea904e5bcff4760c7d3932",
+        "android_client_info": {
+          "package_name": "com.example.meetmax"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDwhV92PiObwesH74D6JI0uKajlyVpPlsI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
