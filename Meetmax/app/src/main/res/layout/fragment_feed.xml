@@ -46,6 +46,7 @@
     </Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:visibility="gone"
         android:layout_below="@id/feed_tool_bar"
         android:id="@+id/story_recylerview"
         android:layout_width="match_parent"
