@@ -9,16 +9,28 @@ import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SignIn extends AppCompatActivity {
     AutoCompleteTextView languageTextView;
@@ -28,6 +40,8 @@ public class SignIn extends AppCompatActivity {
     TextView signUpButton,forgetPasswordButton;
     CheckBox rememberMeCheckBox;
     boolean checkBoxIsChecked;
+    FirebaseAuth firebaseAuth;
+    FirebaseFirestore firestore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +61,8 @@ public class SignIn extends AppCompatActivity {
         rememberMeCheckBox=findViewById(R.id.remeber_me_checkbox);
         logInWithGoogle=findViewById(R.id.log_in_with_google_button);
 
-
+        firebaseAuth=FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
 
         languageTextView.setAdapter(SignUp.languageAdapter);
         if(SignUp.curLanguage!=null)
@@ -111,5 +126,53 @@ public class SignIn extends AppCompatActivity {
         email=emailEditText.getText().toString();
         password=passwordEditText.getText().toString();
         checkBoxIsChecked = rememberMeCheckBox.isChecked();
+
+
+
+        firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(SignIn.this,"Sign in successful",Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(SignIn.this, MainActivity.class));
+//                    uid = Objects.requireNonNull(fAuth.getCurrentUser()).getUid();
+//                    uidRef = fStore.collection("UID").document(uid);
+//                    uidRef.addSnapshotListener(SignInActivity.this, new EventListener<DocumentSnapshot>() {
+//                        @Override
+//                        public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+//                            status = value.getString(KEY_VERIFY);
+//                            name = value.getString(KEY_NAME);
+//                            position = value.getString(KEY_POS);
+//
+//                            if (Objects.equals(status, "Yes")) {
+//                                if (Objects.equals(position, "Doctor") || Objects.equals(position, "Receptionist")) {
+//                                    Toast.makeText(SignInActivity.this, "Welcome " + name, Toast.LENGTH_LONG).show();
+//                                    startActivity(new Intent(SignInActivity.this, MainActivity.class));
+//                                    finish();
+//                                } else if (Objects.equals(position, "Director")) {
+//                                    Toast.makeText(SignInActivity.this, "Welcome " + name, Toast.LENGTH_LONG).show();
+//                                    startActivity(new Intent(SignInActivity.this, DirectorMainActivity.class));
+//                                    finish();
+//                                } else if (Objects.equals(position, "Admin")) {
+//                                    Toast.makeText(SignInActivity.this, "Welcome " + name, Toast.LENGTH_LONG).show();
+//                                    startActivity(new Intent(SignInActivity.this, AdminMainActivity.class));
+//                                    finish();
+//                                } else {
+//                                    Toast.makeText(SignInActivity.this, "Welcome " + name, Toast.LENGTH_LONG).show();
+//                                    startActivity(new Intent(SignInActivity.this, NurseMainActivity.class));
+//                                    finish();
+//                                }
+//                            } else {
+//                                Toast.makeText(SignInActivity.this, "Please wait for Director to assign you", Toast.LENGTH_LONG).show();
+//                            }
+//                        }
+//                    });
+
+                } else {
+                    Toast.makeText(SignIn.this, "Invalid Email or Password", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
     }
 }

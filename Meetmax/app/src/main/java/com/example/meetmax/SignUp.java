@@ -27,6 +27,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -52,6 +53,8 @@ public class SignUp extends AppCompatActivity {
     TextInputLayout emailLayout, fullnameLayout, passwordLayout, genderLayout, dobLayout;
     private static final String KEY_NAME = "Name", KEY_EMAIL = "Email", KEY_PASS = "Password",
             KEY_GENDER = "Gender", KEY_DOB = "DoB", KEY_VERIFY = "Verified", KEY_UID = "Uid";
+    String verified,uid;
+    DocumentReference documentReference;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -198,6 +201,8 @@ public class SignUp extends AppCompatActivity {
             genderLayout.requestFocus();
             return;
         }
+        RadioButton selectedRadioButton = findViewById(selectedId);
+        String gender = selectedRadioButton.getText().toString();
 
         if(Objects.equals(birthdate, "")) {
             Toast.makeText(SignUp.this,"Select Birthdate",Toast.LENGTH_LONG).show();
@@ -209,72 +214,85 @@ public class SignUp extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(task.isSuccessful()) {
-                            uid = Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid();
-                            dbReference = fStore.collection("UID").document(uid);
+                            uid=email;
+                           // documentReference = firestore.collection("UserID").document(uid);
 
                             Map<String,Object> val = new HashMap<>();
                             val.put(KEY_NAME,fullName);
                             val.put(KEY_EMAIL,email);
                             val.put(KEY_PASS,password);
                             val.put(KEY_GENDER,gender);
-                            val.put(KEY_DOB,Birthdate);
+                            val.put(KEY_DOB,birthdate);
                             val.put(KEY_VERIFY,verified);
-
-                            dbReference.set(val).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            firestore.collection("UserID").document().set(val).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if(task.isSuccessful())
                                     {
-                                        if(Objects.equals(position, "Director")){
-                                            adminRef = fStore.collection("Admin").document(uid);
-
-                                            Map<String, Object> dir = new HashMap<>();
-                                            dir.put(KEY_NAME,name);
-                                            dir.put(KEY_UID, uid);
-                                            dir.put(KEY_HID, hid);
-                                            dir.put(KEY_EMAIL,email);
-
-                                            adminRef.set(dir).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        Toast.makeText(SignUpUserInputActivity.this, "SignUp complete. Data sent to Admin for validation", Toast.LENGTH_LONG).show();
-                                                        startActivity(new Intent(SignUpUserInputActivity.this, SignInActivity.class));
-                                                        finish();
-                                                    } else {
-                                                        Toast.makeText(SignUpUserInputActivity.this, "Failed to Complete Request", Toast.LENGTH_LONG).show();
-                                                    }
-                                                }
-                                            });
-                                        } else {
-                                            hospRef = fStore.collection("Hospitals").document(hid).collection(position).document(uid);
-
-                                            Map<String, Object> work = new HashMap<>();
-                                            work.put(KEY_UID, uid);
-                                            work.put(KEY_VERIFY, verified);
-
-                                            hospRef.set(work).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                @Override
-                                                public void onComplete(@NonNull Task<Void> task) {
-                                                    if (task.isSuccessful()) {
-                                                        Toast.makeText(SignUpUserInputActivity.this, "SignUp complete. Data sent for Director for validation", Toast.LENGTH_LONG).show();
-                                                        startActivity(new Intent(SignUpUserInputActivity.this, SignInActivity.class));
-                                                        finish();
-                                                    } else {
-                                                        Toast.makeText(SignUpUserInputActivity.this, "Failed to Complete Request", Toast.LENGTH_LONG).show();
-                                                    }
-                                                }
-                                            });
-                                        }
-
-                                    } else {
-                                        Toast.makeText(SignUp.this,"Failed to Complete Request", Toast.LENGTH_LONG).show();
+                                        Toast.makeText(SignUp.this," Sign Up Successful!",Toast.LENGTH_SHORT).show();
                                     }
+                                    else
+                                    {
+                                        Toast.makeText(SignUp.this," Sign Up Failed!",Toast.LENGTH_SHORT).show();
+                                    }
+
                                 }
                             });
+//                            dbReference.set(val).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    if(task.isSuccessful())
+//                                    {
+//                                        if(Objects.equals(position, "Director")){
+//                                            adminRef = fStore.collection("Admin").document(uid);
+//
+//                                            Map<String, Object> dir = new HashMap<>();
+//                                            dir.put(KEY_NAME,name);
+//                                            dir.put(KEY_UID, uid);
+//                                            dir.put(KEY_HID, hid);
+//                                            dir.put(KEY_EMAIL,email);
+//
+//                                            adminRef.set(dir).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                                @Override
+//                                                public void onComplete(@NonNull Task<Void> task) {
+//                                                    if (task.isSuccessful()) {
+//                                                        Toast.makeText(SignUpUserInputActivity.this, "SignUp complete. Data sent to Admin for validation", Toast.LENGTH_LONG).show();
+//                                                        startActivity(new Intent(SignUpUserInputActivity.this, SignInActivity.class));
+//                                                        finish();
+//                                                    } else {
+//                                                        Toast.makeText(SignUpUserInputActivity.this, "Failed to Complete Request", Toast.LENGTH_LONG).show();
+//                                                    }
+//                                                }
+//                                            });
+//                                        } else {
+//                                            hospRef = fStore.collection("Hospitals").document(hid).collection(position).document(uid);
+//
+//                                            Map<String, Object> work = new HashMap<>();
+//                                            work.put(KEY_UID, uid);
+//                                            work.put(KEY_VERIFY, verified);
+//
+//                                            hospRef.set(work).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                                @Override
+//                                                public void onComplete(@NonNull Task<Void> task) {
+//                                                    if (task.isSuccessful()) {
+//                                                        Toast.makeText(SignUpUserInputActivity.this, "SignUp complete. Data sent for Director for validation", Toast.LENGTH_LONG).show();
+//                                                        startActivity(new Intent(SignUpUserInputActivity.this, SignInActivity.class));
+//                                                        finish();
+//                                                    } else {
+//                                                        Toast.makeText(SignUpUserInputActivity.this, "Failed to Complete Request", Toast.LENGTH_LONG).show();
+//                                                    }
+//                                                }
+//                                            });
+//                                        }
+//
+//                                    } else {
+//                                        Toast.makeText(SignUp.this,"Failed to Complete Request", Toast.LENGTH_LONG).show();
+//                                    }
+//                                }
+//                            });
                         } else {
                             Toast.makeText(SignUp.this,"Unable to create id. Please try again",Toast.LENGTH_LONG).show();
-                        }
+                       }
                     }
                 });
 
