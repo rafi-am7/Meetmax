@@ -7,7 +7,6 @@
         android:layout_height="match_parent"
         android:id="@+id/loaded_from_gallery_imageview"
         android:background="@color/light_gray"
-        android:layout_margin="5dp"
         android:orientation="horizontal"
         android:scaleType="centerCrop"
 

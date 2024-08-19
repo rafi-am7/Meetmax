@@ -6,6 +6,7 @@
     android:background="@color/white"
     android:layout_height="match_parent"
     tools:context=".FeedFragment">
+
     <Toolbar
         android:id="@+id/feed_tool_bar"
         android:layout_width="match_parent"
@@ -22,8 +23,7 @@
                 android:layout_margin="8dp"
                 android:src="@drawable/profile_photo"
                 app:civ_border_width="1dp"
-                app:civ_border_color="@color/black"
-                />
+                app:civ_border_color="@color/black" />
             <ImageView
                 android:layout_marginLeft="24dp"
                 android:layout_marginRight="24dp"
@@ -32,8 +32,7 @@
                 android:layout_centerVertical="true"
                 android:src="@drawable/ic_message"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                />
+                android:layout_height="wrap_content" />
             <androidx.appcompat.widget.SearchView
                 android:layout_toLeftOf="@id/feed_toolbar_message_button"
                 android:layout_width="match_parent"
@@ -50,12 +49,46 @@
         android:layout_below="@id/feed_tool_bar"
         android:id="@+id/story_recylerview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
-    <androidx.recyclerview.widget.RecyclerView
+        android:layout_height="wrap_content" />
+
+    <!-- Add Post Section -->
+    <RelativeLayout
+        android:id="@+id/add_post_view"
         android:layout_below="@id/story_recylerview"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_pic_add_post"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/profile_photo"
+            app:civ_border_width="1dp"
+            app:civ_border_color="@color/black" />
+
+        <Button
+            android:id="@+id/add_post_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/profile_pic_add_post"
+            android:layout_marginStart="8dp"
+            android:text="What's on your mind?"
+            android:textColor="@color/black"
+            android:gravity="left"
+            android:background="@drawable/bg_edit_text_post"
+            android:padding="8dp"
+            android:textAllCaps="false" />
+
+
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_below="@id/add_post_view"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/feed_post_recycler_view"/>
+        android:id="@+id/feed_post_recycler_view" />
 
 </RelativeLayout>

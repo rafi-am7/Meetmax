@@ -34,6 +34,8 @@ import java.util.UUID;
 import adapters.SelectedImagesAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.FeedPostModel;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class PostAddFragment extends Fragment {
     private CircleImageView writePostProfilePic, toolbarProfilePic;
@@ -44,7 +46,6 @@ public class PostAddFragment extends Fragment {
     private ArrayList<Uri> selectedImageList;
     private Uri imageUri;
     private ViewPager loadedFromGalleryViewpager;
-
     private SelectedImagesAdapter selectedImagesAdapter;
 
     private FirebaseAuth mAuth;
@@ -169,8 +170,20 @@ public class PostAddFragment extends Fragment {
     }
 
     private void savePostToFirestore(ArrayList<String> imageUrls) {
-        String username = mAuth.getCurrentUser().getDisplayName();
-        String timestamp = String.valueOf(System.currentTimeMillis());
+        String username = "Test";
+        DateTimeFormatter formatter = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        }
+        LocalDateTime now = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            now = LocalDateTime.now();
+        }
+        String timestamp = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            timestamp = now.format(formatter);
+        }
+
         String postDescription = writePostDescriptionEditText.getText().toString();
         String profileImage = mAuth.getCurrentUser().getPhotoUrl() != null ? mAuth.getCurrentUser().getPhotoUrl().toString() : "";
         String uid = mAuth.getCurrentUser().getUid();
@@ -181,7 +194,7 @@ public class PostAddFragment extends Fragment {
         String shareCount = "0";
 
         FeedPostModel postModel = new FeedPostModel(username, timestamp, postDescription, profileImage, uid, privacy, feeling, imageUrls, likeCount, commentCount, shareCount);
-        firestore.collection("posts")
+        firestore.collection("Posts")
                 .add(postModel)
                 .addOnSuccessListener(documentReference -> {
                     clearAndNavigateToFeed();

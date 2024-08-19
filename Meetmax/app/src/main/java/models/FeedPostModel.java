@@ -7,6 +7,7 @@ public class FeedPostModel {
     private String feeling;
     private ArrayList<String> postImages;
     private String likeCount,commentCount,shareCount;
+    private String postId="";
 
 
     public FeedPostModel(String username, String timestamp, String postDescription, String profileImage,
@@ -23,6 +24,14 @@ public class FeedPostModel {
         this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.shareCount = shareCount;
+    }
+
+    public String getPostId() {
+        return postId;
+    }
+
+    public void setPostId(String postId) {
+        this.postId = postId;
     }
 
     public FeedPostModel() {
