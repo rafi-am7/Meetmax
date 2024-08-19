@@ -24,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     MyCommunityFragment myCommunityFragment;
     SettingsFragment settingsFragment;
     ExploreFragment exploreFragment;
+    PostAddFragment postAddFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         notificationsFragment = new NotificationsFragment();
         myCommunityFragment = new MyCommunityFragment();
         settingsFragment = new SettingsFragment();
+        postAddFragment = new PostAddFragment();
         bottomNavigationView=findViewById(R.id.bottomNavigationView);
         replaceFragment(feedFragment);
 
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if(item.getItemId()==R.id.nav_menu_notifications)
                 {
-                    replaceFragment(notificationsFragment);
+                    replaceFragment(postAddFragment);
                 }
                 else if(item.getItemId()==R.id.nav_menu_settings)
                 {

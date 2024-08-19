@@ -104,7 +104,7 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
 
         int color = Color.argb(255,255,150,240);
         Glide.with(mContext.getApplicationContext())
-                .load(feedPostModel.getPostImage())
+                .load(feedPostModel.getPostImages())
                 .placeholder(new ColorDrawable(color))
                 .timeout(7000)
                 .into(holder.postImageView);

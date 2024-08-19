@@ -61,21 +61,21 @@ public class FeedFragment extends Fragment {
     }
     private void loadPostDataFromFirestore()
     {
-        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
-                "","12223","public","12","11","2"));
+//        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
+//                "","12223","public","12","11","2"));
+//
+//        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
+//                "","12223","public","12","11","2"));
+//
+//        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
+//                "","12223","public","12","11","2"));
+//
+//        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
+//                "","12223","public","12","11","2"));
+//
+//        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
+//                "","12223","public","12","11","2"));
 
-        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
-                "","12223","public","12","11","2"));
-
-        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
-                "","12223","public","12","11","2"));
-
-        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
-                "","12223","public","12","11","2"));
-
-        postArrayList.add(new FeedPostModel("Rafi","2h","hello!","",
-                "","12223","public","12","11","2"));
-
-        feedPostAdapter.notifyDataSetChanged();
+     //   feedPostAdapter.notifyDataSetChanged();
     }
 }

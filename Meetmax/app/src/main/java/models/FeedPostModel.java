@@ -1,19 +1,25 @@
 package models;
 
+import java.util.ArrayList;
+
 public class FeedPostModel {
-    private String username, timestamp,postDescription, profileImage,uid,postImage,privacy;
+    private String username, timestamp,postDescription, profileImage,uid,privacy;
+    private String feeling;
+    private ArrayList<String> postImages;
     private String likeCount,commentCount,shareCount;
 
-    public FeedPostModel(String username, String timestamp, String postDescription,
-                         String profileImage, String uid, String postImage, String privacy,
+
+    public FeedPostModel(String username, String timestamp, String postDescription, String profileImage,
+                         String uid, String privacy,String feeling, ArrayList<String> postImages,
                          String likeCount, String commentCount, String shareCount) {
         this.username = username;
         this.timestamp = timestamp;
         this.postDescription = postDescription;
         this.profileImage = profileImage;
         this.uid = uid;
-        this.postImage = postImage;
         this.privacy = privacy;
+        this.feeling = feeling;
+        this.postImages = postImages;
         this.likeCount = likeCount;
         this.commentCount = commentCount;
         this.shareCount = shareCount;
@@ -54,14 +60,13 @@ public class FeedPostModel {
         this.uid = uid;
     }
 
-    public String getPostImage() {
-        return postImage;
+    public ArrayList<String> getPostImages() {
+        return postImages;
     }
 
-    public void setPostImage(String postImage) {
-        this.postImage = postImage;
+    public void setPostImages(ArrayList<String> postImages) {
+        this.postImages = postImages;
     }
-
 
     public String getPrivacy() {
         return privacy;
@@ -101,5 +106,13 @@ public class FeedPostModel {
 
     public void setShareCount(String shareCount) {
         this.shareCount = shareCount;
+    }
+
+    public String getFeeling() {
+        return feeling;
+    }
+
+    public void setFeeling(String feeling) {
+        this.feeling = feeling;
     }
 }
