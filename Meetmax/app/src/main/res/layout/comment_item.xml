@@ -22,6 +22,7 @@
             android:id="@+id/comment_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/black"
             android:text="Username"
             android:textStyle="bold" />
         <TextView
@@ -33,7 +34,9 @@
             android:textColor="@android:color/darker_gray" />
         <TextView
             android:id="@+id/comment_text"
+            android:textColor="@color/black"
             android:layout_width="wrap_content"
+            android:singleLine="false"
             android:layout_height="wrap_content"
             android:text="Comment text" />
 

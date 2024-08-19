@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -36,10 +37,11 @@ import models.FeedPostModel;
 import models.UserModel;
 
 public class FeedFragment extends Fragment {
-    private RecyclerView postRecyclerView,commentsRecyclerView;
+    private RecyclerView postRecyclerView;
     private FeedPostAdapter feedPostAdapter;
     private ArrayList<FeedPostModel> postArrayList;
     private FirebaseFirestore firestore;
+
 
     @Nullable
     @Override
@@ -72,11 +74,7 @@ public class FeedFragment extends Fragment {
 
             @Override
             public void onCommentClick(int position) {
-                //FeedPostModel selectedPost = postArrayList.get(position);
-                //if(selectedPost.getCommentCount()!=null && Integer.parseInt(selectedPost.getCommentCount())>0)
-                //{
-                    //openCommentSection(selectedPost.getPostId());
-               // }
+
             }
 
             @Override
@@ -95,6 +93,7 @@ public class FeedFragment extends Fragment {
         postArrayList = new ArrayList<>();
         feedPostAdapter = new FeedPostAdapter(getContext(), postArrayList);
         postRecyclerView.setAdapter(feedPostAdapter);
+
 
 
     }
@@ -187,36 +186,6 @@ public class FeedFragment extends Fragment {
             // Format the result as "Xh Ym Zs"
         return res;
 
-    }
-
-    // Function to open the comment section
-    private void openCommentSection(String postId) {
-        // Load the comments for the selected post
-        firestore.collection("Posts")
-                .document(postId)
-                .collection("Comments")
-                .orderBy("timestamp")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        List<CommentModel> comments = new ArrayList<>();
-                        for (DocumentSnapshot document : task.getResult()) {
-                            CommentModel comment = document.toObject(CommentModel.class);
-                            if (comment != null) {
-                                comments.add(comment);
-                            }
-                        }
-                        // Show comments using a RecyclerView or a Dialog
-                        showCommentDialog(comments);
-                    } else {
-                        Toast.makeText(getContext(), "Failed to load comments", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
-
-    // Function to show comments in a dialog or another fragment
-    private void showCommentDialog(List<CommentModel> comments) {
-        // Show the comment section UI
     }
 
 

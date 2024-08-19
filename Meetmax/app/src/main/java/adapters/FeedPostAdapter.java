@@ -2,6 +2,7 @@ package adapters;
 
 import static com.example.meetmax.FeedFragment.getCurrentTimestamp;
 import static com.example.meetmax.FeedFragment.getCurrentUserId;
+import static com.example.meetmax.FeedFragment.getTimeDifference;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +26,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.meetmax.R;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -32,6 +36,7 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 import models.CommentModel;
 import models.FeedPostModel;
+import models.UserModel;
 
 public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPostViewHolder> {
 
@@ -114,6 +119,19 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
                 mCustomClickListener.onShareClick(holder.getAdapterPosition());
             }
         });
+        // Toggle comment section visibility
+        holder.commentButton.setOnClickListener(v -> {
+            if (holder.commentLayout.getVisibility() == View.VISIBLE) {
+                holder.commentLayout.setVisibility(View.GONE);
+            } else {
+                holder.commentLayout.setVisibility(View.VISIBLE);
+            }
+            if (holder.commentsRecyclerView.getVisibility() == View.VISIBLE) {
+                holder.commentsRecyclerView.setVisibility(View.GONE);
+            } else {
+                holder.commentsRecyclerView.setVisibility(View.VISIBLE);
+            }
+        });
 
         // Initialize CommentAdapter
         CommentAdapter commentAdapter = new CommentAdapter(mContext, new ArrayList<>());
@@ -146,7 +164,17 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             CommentModel comment = document.toObject(CommentModel.class);
                             if (comment != null) {
-                                comments.add(comment);
+                                getUserDetailsForComment(comment, updatedComment -> {
+                                    Log.d("gama"," "+updatedComment.getUserId());
+                                    Log.d("gama"," "+updatedComment.getCommentText());
+                                    Log.d("gama"," "+updatedComment.getUsername());
+                                    comments.add(updatedComment);
+                                    if (comments.size() == task.getResult().size()) {
+                                        // Ensure all comments are loaded before triggering the listener
+                                        listener.onCommentsLoaded(comments);
+                                    }
+                                });
+
                             }
                         }
                         listener.onCommentsLoaded(comments);
@@ -154,6 +182,34 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
                         Log.d("FeedPostAdapter", "Error getting comments: ", task.getException());
                     }
                 });
+    }
+    private void getUserDetailsForComment(CommentModel commentModel, OnUserDetailsFetchedForCommentListener listener) {
+        DocumentReference userRef = FirebaseFirestore.getInstance().
+                collection("Users").document(commentModel.getUserId());
+
+        userRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    UserModel user = document.toObject(UserModel.class);
+                    if (user != null) {
+                        commentModel.setUsername(user.getName());
+                        commentModel.setUserProfileImage(user.getProfileImage());
+                        commentModel.setTimestamp(getTimeDifference(commentModel.getTimestamp()));
+                        listener.onUserDetailsFetched(commentModel); // Trigger callback with the updated commentModel
+                    }
+                } else {
+                    Log.d("getUserDetailsForComment", "User document does not exist.");
+                }
+            } else {
+                Log.d("getUserDetailsForComment", "Failed to load user details.", task.getException());
+            }
+        });
+    }
+
+    // Define the callback interface
+    interface OnUserDetailsFetchedForCommentListener {
+        void onUserDetailsFetched(CommentModel commentModel);
     }
 
     private void submitComment(String postId, String commentText, CommentAdapter commentAdapter) {
@@ -212,6 +268,7 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
         private final RecyclerView commentsRecyclerView;
         private final EditText commentEditText;
         private final ImageButton commentSendButton;
+        private LinearLayout commentLayout;
 
         public FeedPostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -231,6 +288,7 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
             commentsRecyclerView = itemView.findViewById(R.id.comments_recycler_view);
             commentEditText = itemView.findViewById(R.id.comment_edit_text);
             commentSendButton = itemView.findViewById(R.id.comment_send_button);
+            commentLayout = itemView.findViewById(R.id.add_comment_layout);
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);

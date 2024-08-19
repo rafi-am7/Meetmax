@@ -111,6 +111,7 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/like_comment_share_layout"
         android:background="@color/light_gray"
         android:layout_width="match_parent"
         android:layout_below="@id/post_stat_layout"
@@ -158,6 +159,7 @@
     </LinearLayout>
     <!-- Add Comment Section -->
     <LinearLayout
+        android:visibility="gone"
         android:id="@+id/add_comment_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -191,6 +193,7 @@
             android:layout_marginStart="8dp"/>
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
+        android:visibility="gone"
         android:id="@+id/comments_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
