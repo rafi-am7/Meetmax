@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="8dp">
+
+    <!-- Layout for Story Upload -->
+    <LinearLayout
+        android:id="@+id/story_upload_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/story_profile_pic"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/profile_photo" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Story"
+            android:textSize="12sp"
+            android:textColor="@color/black"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>

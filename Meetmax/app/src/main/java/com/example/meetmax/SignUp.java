@@ -2,6 +2,7 @@ package com.example.meetmax;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,15 +14,28 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+
+import models.UserModel;
 
 public class SignUp extends AppCompatActivity {
     AutoCompleteTextView languageTextView;
@@ -36,6 +50,13 @@ public class SignUp extends AppCompatActivity {
     String fullName, email, password;
     RadioGroup genderRadioGroup;
     RadioButton selectedRadioButton;
+    FirebaseFirestore firestore;
+    FirebaseAuth firebaseAuth;
+    TextInputLayout emailLayout, fullnameLayout, passwordLayout, genderLayout, dobLayout;
+    private static final String KEY_NAME = "Name", KEY_EMAIL = "Email", KEY_PASS = "Password",
+            KEY_GENDER = "Gender", KEY_DOB = "DoB", KEY_VERIFY = "Verified", KEY_UID = "Uid";
+    String verified,uid;
+    DocumentReference documentReference;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +76,13 @@ public class SignUp extends AppCompatActivity {
         signInButton=findViewById(R.id.sign_in_button);
         dateOfBirthButton=findViewById(R.id.date_of_birth_button);
         genderRadioGroup = findViewById(R.id.sign_up_gender_radio_group);
+
+        emailLayout = findViewById(R.id.sign_up_email);
+        fullnameLayout = findViewById(R.id.sign_up_full_name);
+        passwordLayout = findViewById(R.id.sign_up_password);
+        genderLayout = findViewById(R.id.sign_up_password);
+        firebaseAuth = FirebaseAuth.getInstance();
+        firestore = FirebaseFirestore.getInstance();
 
 
 
@@ -137,21 +165,214 @@ public class SignUp extends AppCompatActivity {
         Intent intent = new Intent(SignUp.this, SignIn.class);
         startActivity(intent);
     }
-    void signUp()
-    {
-        fullName=fullNameEditText.getText().toString();
-        email=emailEditText.getText().toString();
-        password=passwordEditText.getText().toString();
+    void signUp() {
+        fullName = fullNameEditText.getText().toString();
+        email = emailEditText.getText().toString();
+        password = passwordEditText.getText().toString();
         int selectedId = genderRadioGroup.getCheckedRadioButtonId();
-        if (selectedId != -1) {
-            RadioButton selectedRadioButton = findViewById(selectedId);
-            String selectedGender = selectedRadioButton.getText().toString();
-            Toast.makeText(this, "Selected Gender: " + selectedGender, Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "No gender selected", Toast.LENGTH_SHORT).show();
+
+        if (fullName.isEmpty()) {
+            fullnameLayout.setError("Enter Name");
+            fullnameLayout.requestFocus();
+            return;
         }
 
+        if (email.isEmpty()) {
+            emailLayout.setError("Enter Email");
+            emailLayout.requestFocus();
+            return;
+        }
+
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            emailLayout.setError("Please provide valid email");
+            emailLayout.requestFocus();
+            return;
+        }
+
+        if (password.length() < 6) {
+            passwordLayout.setError("Minimum 6 digits");
+            passwordLayout.requestFocus();
+            return;
+        }
+
+        if (selectedId == -1) {
+            genderLayout.setError("Select Gender");
+            genderLayout.requestFocus();
+            return;
+        }
+
+        RadioButton selectedRadioButton = findViewById(selectedId);
+        String gender = selectedRadioButton.getText().toString();
+
+        if (Objects.equals(birthdate, "")) {
+            Toast.makeText(SignUp.this, "Select Birthdate", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        firebaseAuth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            uid = firebaseAuth.getCurrentUser().getUid();
+
+                            UserModel user = new UserModel(uid,fullName, email, password, gender, birthdate, verified);
+
+                            firestore.collection("Users").document(uid).set(user)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Toast.makeText(SignUp.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
+                                                startActivity(new Intent(SignUp.this, MainActivity.class));
+                                                finish();
+                                            } else {
+                                                Toast.makeText(SignUp.this, "Sign Up Failed!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                        } else {
+                            Toast.makeText(SignUp.this, "Unable to create account. Please try again", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
     }
+
+    //    void signUp()
+//    {
+//        fullName=fullNameEditText.getText().toString();
+//        email=emailEditText.getText().toString();
+//        password=passwordEditText.getText().toString();
+//        int selectedId = genderRadioGroup.getCheckedRadioButtonId();
+//        if(fullName.isEmpty()) {
+//            fullnameLayout.setError("Enter Name");
+//            fullnameLayout.requestFocus();
+//            return;
+//        }
+//
+//        if(email.isEmpty()) {
+//            emailLayout.setError("Enter Name");
+//            emailLayout.requestFocus();
+//            return;
+//        }
+//
+//        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches())
+//        {
+//            emailLayout.setError("Please provide valid email");
+//            emailLayout.requestFocus();
+//            return;
+//        }
+//
+//
+//        if(password.length() < 6) {
+//            passwordLayout.setError("Minimum 6 digit");
+//            passwordLayout.requestFocus();
+//            return;
+//        }
+//
+//
+//        if(selectedId == -1) {
+//            genderLayout.setError("Select Gender");
+//            genderLayout.requestFocus();
+//            return;
+//        }
+//        RadioButton selectedRadioButton = findViewById(selectedId);
+//        String gender = selectedRadioButton.getText().toString();
+//
+//        if(Objects.equals(birthdate, "")) {
+//            Toast.makeText(SignUp.this,"Select Birthdate",Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//
+//        firebaseAuth.createUserWithEmailAndPassword(email,password)
+//                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<AuthResult> task) {
+//                        if(task.isSuccessful()) {
+//                            uid=email;
+//                           // documentReference = firestore.collection("UserID").document(uid);
+//
+//                            Map<String,Object> val = new HashMap<>();
+//                            val.put(KEY_NAME,fullName);
+//                            val.put(KEY_EMAIL,email);
+//                            val.put(KEY_PASS,password);
+//                            val.put(KEY_GENDER,gender);
+//                            val.put(KEY_DOB,birthdate);
+//                            val.put(KEY_VERIFY,verified);
+//                            firestore.collection("UserID").document().set(val).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    if(task.isSuccessful())
+//                                    {
+//                                        Toast.makeText(SignUp.this," Sign Up Successful!",Toast.LENGTH_SHORT).show();
+//                                    }
+//                                    else
+//                                    {
+//                                        Toast.makeText(SignUp.this," Sign Up Failed!",Toast.LENGTH_SHORT).show();
+//                                    }
+//
+//                                }
+//                            });
+////                            dbReference.set(val).addOnCompleteListener(new OnCompleteListener<Void>() {
+////                                @Override
+////                                public void onComplete(@NonNull Task<Void> task) {
+////                                    if(task.isSuccessful())
+////                                    {
+////                                        if(Objects.equals(position, "Director")){
+////                                            adminRef = fStore.collection("Admin").document(uid);
+////
+////                                            Map<String, Object> dir = new HashMap<>();
+////                                            dir.put(KEY_NAME,name);
+////                                            dir.put(KEY_UID, uid);
+////                                            dir.put(KEY_HID, hid);
+////                                            dir.put(KEY_EMAIL,email);
+////
+////                                            adminRef.set(dir).addOnCompleteListener(new OnCompleteListener<Void>() {
+////                                                @Override
+////                                                public void onComplete(@NonNull Task<Void> task) {
+////                                                    if (task.isSuccessful()) {
+////                                                        Toast.makeText(SignUpUserInputActivity.this, "SignUp complete. Data sent to Admin for validation", Toast.LENGTH_LONG).show();
+////                                                        startActivity(new Intent(SignUpUserInputActivity.this, SignInActivity.class));
+////                                                        finish();
+////                                                    } else {
+////                                                        Toast.makeText(SignUpUserInputActivity.this, "Failed to Complete Request", Toast.LENGTH_LONG).show();
+////                                                    }
+////                                                }
+////                                            });
+////                                        } else {
+////                                            hospRef = fStore.collection("Hospitals").document(hid).collection(position).document(uid);
+////
+////                                            Map<String, Object> work = new HashMap<>();
+////                                            work.put(KEY_UID, uid);
+////                                            work.put(KEY_VERIFY, verified);
+////
+////                                            hospRef.set(work).addOnCompleteListener(new OnCompleteListener<Void>() {
+////                                                @Override
+////                                                public void onComplete(@NonNull Task<Void> task) {
+////                                                    if (task.isSuccessful()) {
+////                                                        Toast.makeText(SignUpUserInputActivity.this, "SignUp complete. Data sent for Director for validation", Toast.LENGTH_LONG).show();
+////                                                        startActivity(new Intent(SignUpUserInputActivity.this, SignInActivity.class));
+////                                                        finish();
+////                                                    } else {
+////                                                        Toast.makeText(SignUpUserInputActivity.this, "Failed to Complete Request", Toast.LENGTH_LONG).show();
+////                                                    }
+////                                                }
+////                                            });
+////                                        }
+////
+////                                    } else {
+////                                        Toast.makeText(SignUp.this,"Failed to Complete Request", Toast.LENGTH_LONG).show();
+////                                    }
+////                                }
+////                            });
+//                        } else {
+//                            Toast.makeText(SignUp.this,"Unable to create id. Please try again",Toast.LENGTH_LONG).show();
+//                       }
+//                    }
+//                });
+//
+//
+//    }
     public static void setLanguage()
     {
     }
@@ -161,6 +382,8 @@ public class SignUp extends AppCompatActivity {
     }
     void logInWithApple()
     {
+        startActivity(new Intent(SignUp.this,MainActivity.class));
+        finish();
 
     }
 

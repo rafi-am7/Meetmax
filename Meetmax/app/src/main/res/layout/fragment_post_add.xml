@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".PostAddFragment">
+    <RelativeLayout
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <Toolbar
+            android:id="@+id/feed_tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:elevation="2dp">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/feed_toolbar_profile_picture"
+                    android:layout_width="?attr/actionBarSize"
+                    android:layout_height="?attr/actionBarSize"
+                    android:layout_margin="8dp"
+                    android:src="@drawable/profile_photo"
+                    app:civ_border_color="@color/black"
+                    app:civ_border_width="1dp" />
+
+                <ImageView
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginRight="24dp"
+                    android:id="@+id/feed_toolbar_message_button"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_message"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    />
+                <androidx.appcompat.widget.SearchView
+                    android:layout_toLeftOf="@id/feed_toolbar_message_button"
+                    android:layout_width="match_parent"
+                    android:layout_centerVertical="true"
+                    android:layout_height="wrap_content"
+                    app:queryHint="Search here..."
+                    android:layout_toRightOf="@id/feed_toolbar_profile_picture"
+                    app:iconifiedByDefault="false" />
+            </RelativeLayout>
+        </Toolbar>
+
+        <RelativeLayout
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:id="@+id/post_privacy_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/feed_tool_bar"
+            android:layout_marginTop="0dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/light_gray">
+
+            <View
+                android:id="@+id/back_button"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_centerVertical="true"
+                android:background="@drawable/ic_arrow_back" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/back_button"
+                android:layout_marginLeft="10dp"
+                android:text="Create a post"
+                android:textColor="@color/black"
+                android:textSize="18sp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/post_privacy_menu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerInParent="true"
+                android:layout_marginRight="10dp"
+                android:textColorHint="@color/black"
+                app:boxBackgroundColor="@color/white"
+                app:helperTextTextColor="@color/red"
+                app:hintTextColor="@color/black">
+
+                <AutoCompleteTextView
+                    android:id="@+id/upload_post_privacy_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:text="Friends"
+                    android:textColor="@color/blue" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginRight="5dp"
+                android:layout_toLeftOf="@id/post_privacy_menu"
+                android:text="visible for"
+                android:textColor="@color/black" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/write_post_layout"
+            android:layout_below="@+id/post_privacy_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/write_post_profile_picture"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="8dp"
+                android:layout_marginRight="16dp"
+                android:src="@drawable/profile_photo"
+                app:civ_border_color="@color/black"
+                app:civ_border_width="1dp" />
+            <EditText
+                android:textColor="@color/black"
+                android:id="@+id/write_post_description_edit_text"
+                android:layout_toRightOf="@id/write_post_profile_picture"
+                android:layout_width="match_parent"
+                android:background="@color/light_gray"
+                android:hint="what's happening?"
+                android:textColorHint="@color/black"
+                android:layout_height="220dp"/>
+        </RelativeLayout>
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/selected_image_viewpager"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_below="@id/write_post_layout"
+            />
+        <Button
+            android:layout_below="@id/selected_image_viewpager"
+            android:id="@+id/upload_live_video_button"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/white"
+            android:gravity="center_vertical"
+            android:text="Live Video"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:icon="@drawable/ic_live_video"
+            app:iconTint="@color/black" />
+
+        <Button
+            android:id="@+id/upload_image_button"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/upload_live_video_button"
+            android:layout_marginTop="0dp"
+            android:backgroundTint="@color/white"
+            android:gravity="center_vertical"
+            android:text="Photo/Video"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:icon="@drawable/ic_image"
+            app:iconTint="@color/black" />
+
+        <Button
+            android:layout_below="@id/upload_image_button"
+            android:id="@+id/upload_feeling_button"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/white"
+            android:gravity="center_vertical"
+            android:text="Feeling"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            app:icon="@drawable/ic_feelings"
+            app:iconTint="@color/black" />
+        <com.google.android.material.button.MaterialButton
+            android:layout_margin="10dp"
+            android:id="@+id/upload_post_button"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="Post"
+            android:textColor="@color/white"
+            app:iconGravity="end"
+            app:iconTint="@color/white"
+            android:layout_below="@id/upload_feeling_button"/>
+
+
+
+
+
+
+    </RelativeLayout>
+</androidx.core.widget.NestedScrollView>
