@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
     tools:context=".PostAddFragment">
     <RelativeLayout
         android:background="@color/white"
@@ -122,15 +123,21 @@
                 android:src="@drawable/profile_photo"
                 app:civ_border_color="@color/black"
                 app:civ_border_width="1dp" />
+
             <EditText
-                android:textColor="@color/black"
                 android:id="@+id/write_post_description_edit_text"
-                android:layout_toRightOf="@id/write_post_profile_picture"
+                android:padding="16dp"
                 android:layout_width="match_parent"
+                android:layout_height="220dp"
+                android:layout_margin="10dp"
+                android:layout_toRightOf="@id/write_post_profile_picture"
                 android:background="@color/light_gray"
                 android:hint="what's happening?"
+                android:textColor="@color/black"
+                android:textSize="16dp"
                 android:textColorHint="@color/black"
-                android:layout_height="220dp"/>
+                android:gravity="top|start"
+                android:scrollbars="vertical" />
         </RelativeLayout>
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/selected_image_viewpager"

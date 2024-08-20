@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -325,6 +326,9 @@ public class FeedFragment extends Fragment {
         storyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         storyAdapter = new StoryAdapter(getContext(),storyArrayList);
         storyRecyclerView.setAdapter(storyAdapter);
+
+        Button addPostButton = view.findViewById(R.id.add_post_button);
+        addPostButton.setOnClickListener(v -> navigateToPostAddFragment());
     }
 
     private void loadStoryDataFromFirestore() {
@@ -347,5 +351,12 @@ public class FeedFragment extends Fragment {
                         Toast.makeText(getContext(), "Failed to load stories!", Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+    private void navigateToPostAddFragment() {
+        Fragment postAddFragment = new PostAddFragment();
+        getParentFragmentManager().beginTransaction()
+                .replace(R.id.frame_layout_bottom_nav, postAddFragment) // Replace with the ID of your fragment container
+                .addToBackStack(null) // Optional: adds the transaction to the back stack
+                .commit();
     }
 }
