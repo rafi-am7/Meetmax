@@ -11,20 +11,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <ProgressBar
-            android:id="@+id/progress_bar"
+            android:id="@+id/post_add_progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            app:layout_constraintVertical_weight="1"
-            app:layout_constraintHorizontal_weight="1"
             android:visibility="gone"
             android:indeterminateTint="@color/blue"
             tools:ignore="MissingConstraints" />
 
         <View
-            app:layout_constraintVertical_weight="1"
-            app:layout_constraintHorizontal_weight="1"
-            android:id="@+id/overlay"
+            android:id="@+id/post_add_overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#80000000"

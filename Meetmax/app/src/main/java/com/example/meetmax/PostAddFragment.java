@@ -133,8 +133,8 @@ public class PostAddFragment extends Fragment {
         privacyTextView=view.findViewById(R.id.upload_post_privacy_text_view);
         postButton=view.findViewById(R.id.upload_post_button);
         loadedFromGalleryViewpager=view.findViewById(R.id.selected_image_viewpager);
-        progressBar = view.findViewById(R.id.progress_bar);
-        overlay = view.findViewById(R.id.overlay);
+        progressBar = view.findViewById(R.id.post_add_progress_bar);
+        overlay = view.findViewById(R.id.post_add_overlay);
 
         selectedImageList = new ArrayList<>();
         selectedImagesAdapter = new SelectedImagesAdapter(getContext(),selectedImageList);
