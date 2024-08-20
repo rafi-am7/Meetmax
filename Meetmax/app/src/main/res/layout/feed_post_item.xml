@@ -128,8 +128,8 @@
             android:text="Like"
             android:textColor="@color/black"
             android:textSize="14sp"
-            app:icon="@drawable/ic_like"
-            app:iconTint="@color/black" />
+            android:drawableLeft="@drawable/button_like"
+            android:background="@android:color/transparent" />
         <Button
             android:gravity="center_vertical"
             android:id="@+id/post_comment_button"
@@ -175,6 +175,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Write a comment..."
+            android:singleLine="false"
             android:background="@drawable/bg_edit_text_post"
             android:padding="10dp"
             android:textColor="@color/black"

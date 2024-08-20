@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,6 +70,9 @@ public class FeedFragment extends Fragment {
 
             @Override
             public void onLikeClick(int position) {
+                FeedPostModel feedPostModel = postArrayList.get(position);
+                handleLikeClick(feedPostModel.getPostId());
+                feedPostAdapter.notifyDataSetChanged();
 
             }
 
@@ -113,14 +117,12 @@ public class FeedFragment extends Fragment {
                                     // This callback runs when the user details are fetched
                                     Log.d("gama", "   "+updatedPost.getPostId());
                                     postArrayList.add(updatedPost);
-                                    feedPostAdapter.notifyDataSetChanged(); // Notify adapter about data change
+                                    feedPostAdapter.notifyDataSetChanged();
                                 });
                             }
                         }
-                        feedPostAdapter.notifyDataSetChanged(); // Notify adapter about data change
+                        feedPostAdapter.notifyDataSetChanged();
                     } else {
-                        // Handle the error
-                        // For example, show a toast message or log the error
                     }
                 });
     }
@@ -212,8 +214,51 @@ public class FeedFragment extends Fragment {
         }
     }
 
+    private void handleLikeClick(String postId) {
+        String userId = getCurrentUserId();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference postRef = db.collection("Posts").document(postId);
+        DocumentReference userLikesRef = db.collection("Users").document(userId).collection("PostLikes").document(postId);
+        DocumentReference postLikersRef = postRef.collection("Likers").document(userId);
 
+        // Check if the user has already liked the post
+        postLikersRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                boolean alreadyLiked = task.getResult().exists();
+                db.runTransaction(transaction -> {
+                    DocumentSnapshot postSnapshot = transaction.get(postRef);
 
+                    // Retrieve current like count and convert to integer
+                    String currentLikeCountStr = postSnapshot.getString("likeCount");
+                    int currentLikeCount = 0;
+                    if (currentLikeCountStr != null) {
+                        try {
+                            currentLikeCount = Integer.parseInt(currentLikeCountStr);
+                        } catch (NumberFormatException e) {
+                            Log.w("FeedFragment", "Error parsing like count", e);
+                        }
+                    }
+                    if (alreadyLiked) {
+                        transaction.delete(postLikersRef); // Remove user from Likers
+                        transaction.delete(userLikesRef); // Remove post from User's PostLikes
+                        transaction.update(postRef, "likeCount", String.valueOf(currentLikeCount - 1)); // Decrement like count
+                    } else {
+                        transaction.set(postLikersRef, new HashMap<>()); // Add user to Likers
+                        transaction.set(userLikesRef, new HashMap<>()); // Add post to User's PostLikes
+                        transaction.update(postRef, "likeCount", String.valueOf(currentLikeCount + 1)); // Increment like count
+                    }
+
+                    return null;
+                }).addOnSuccessListener(aVoid -> {
+                   // feedPostAdapter.notifyDataSetChanged();
+                    Log.d("FeedFragment", alreadyLiked ? "Unliked successfully" : "Liked successfully");
+                    Toast.makeText(getContext(), alreadyLiked ? "Unliked" : "Liked", Toast.LENGTH_SHORT).show();
+                }).addOnFailureListener(e -> Log.w("FeedFragment", "Error updating like status", e));
+            } else {
+                Log.w("FeedFragment", "Error checking like status", task.getException());
+            }
+        });
+    }
 
 
 

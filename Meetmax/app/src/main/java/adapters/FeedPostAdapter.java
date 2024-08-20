@@ -104,7 +104,13 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
 
         holder.likeButton.setOnClickListener(v -> {
             if (mCustomClickListener != null && holder.getAdapterPosition() != RecyclerView.NO_POSITION) {
-                mCustomClickListener.onLikeClick(holder.getAdapterPosition());
+                //int position = holder.getAdapterPosition();
+                FeedPostModel post = feedPostModelArrayList.get(position);
+                boolean liked = false;//!post.isLikedByCurrentUser();
+                //post.setLikedByCurrentUser(liked); // Update like status
+                updateLikeButtonIcon(holder.likeButton, liked);
+                liked=true;
+                mCustomClickListener.onLikeClick(position);
             }
         });
 
@@ -149,7 +155,20 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
                 holder.commentEditText.setText(""); // Clear the input field
             }
         });
+
+
+
     }
+    private void updateLikeButtonIcon(Button likeButton, boolean isLiked) {
+        if (isLiked) {
+            likeButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_like, 0, 0, 0);
+            // Optionally, update like status in your data model and Firestore
+        } else {
+            likeButton.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_like_filled, 0, 0, 0);
+            // Optionally, update like status in your data model and Firestore
+        }
+    }
+
 
     private void loadComments(String postId, OnCommentsLoadedListener listener) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -270,6 +289,7 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
         private final ImageButton commentSendButton;
         private LinearLayout commentLayout;
 
+
         public FeedPostViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -289,6 +309,7 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.FeedPo
             commentEditText = itemView.findViewById(R.id.comment_edit_text);
             commentSendButton = itemView.findViewById(R.id.comment_send_button);
             commentLayout = itemView.findViewById(R.id.add_comment_layout);
+
 
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
