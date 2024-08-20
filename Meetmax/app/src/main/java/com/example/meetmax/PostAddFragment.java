@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -51,6 +52,8 @@ public class PostAddFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore firestore;
     private FirebaseStorage firebaseStorage;
+    ProgressBar progressBar;
+    View overlay;
 
     @Nullable
     @Override
@@ -130,7 +133,8 @@ public class PostAddFragment extends Fragment {
         privacyTextView=view.findViewById(R.id.upload_post_privacy_text_view);
         postButton=view.findViewById(R.id.upload_post_button);
         loadedFromGalleryViewpager=view.findViewById(R.id.selected_image_viewpager);
-
+        progressBar = view.findViewById(R.id.progress_bar);
+        overlay = view.findViewById(R.id.overlay);
 
         selectedImageList = new ArrayList<>();
         selectedImagesAdapter = new SelectedImagesAdapter(getContext(),selectedImageList);
@@ -151,6 +155,8 @@ public class PostAddFragment extends Fragment {
     }
 
     private void uploadImagesAndSavePost() {
+        progressBar.setVisibility(View.VISIBLE);
+        overlay.setVisibility(View.VISIBLE);
         final ArrayList<String> imageUrls = new ArrayList<>();
         final int totalImages = selectedImageList.size();
         for (int i = 0; i < totalImages; i++) {
@@ -164,6 +170,8 @@ public class PostAddFragment extends Fragment {
                         }
                     }))
                     .addOnFailureListener(e -> {
+                        progressBar.setVisibility(View.GONE);
+                        overlay.setVisibility(View.GONE);
                         // Handle unsuccessful uploads
                     });
         }
@@ -202,11 +210,15 @@ public class PostAddFragment extends Fragment {
                     // Handle success
                 })
                 .addOnFailureListener(e -> {
+                    progressBar.setVisibility(View.GONE);
+                    overlay.setVisibility(View.GONE);
                     // Handle failure
                 });
     }
     private void clearAndNavigateToFeed() {
         // Clear selected images
+        progressBar.setVisibility(View.GONE);
+        overlay.setVisibility(View.GONE);
         selectedImageList.clear();
         selectedImagesAdapter.notifyDataSetChanged();
         loadedFromGalleryViewpager.setVisibility(View.GONE);

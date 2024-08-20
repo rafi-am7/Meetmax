@@ -8,6 +8,26 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:background="@color/white"
 tools:context=".SignIn">
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintHorizontal_weight="1"
+        android:visibility="gone"
+        android:indeterminateTint="@color/blue"
+        tools:ignore="MissingConstraints" />
+
+    <View
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintHorizontal_weight="1"
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000"
+        android:visibility="gone"
+        android:layout_gravity="center"/>
 <ImageView
     android:id="@+id/sign_up_logo_with_text"
     android:layout_width="152dp"
@@ -22,7 +42,6 @@ tools:context=".SignIn">
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_marginStart="24dp"
-    android:layout_marginTop="10dp"
     android:textColorHint="@color/black"
     app:hintTextColor="@color/black"
     app:boxBackgroundColor="@color/white"
@@ -53,6 +72,7 @@ tools:context=".SignIn">
     app:layout_constraintTop_toBottomOf="@id/sign_up_logo_with_text">
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
+        android:id="@+id/sign_in_const"
         android:layout_height="wrap_content">
 
         <TextView
@@ -102,12 +122,12 @@ tools:context=".SignIn">
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
                 android:layout_weight="1"
-                android:backgroundTint="@color/light_gray"
+                android:backgroundTint="@color/gray"
                 android:text="Log in with Google"
-                android:textColor="@color/black"
+                android:textColor="@color/white"
                 android:textSize="14sp"
                 app:icon="@drawable/ic_logo_google"
-                app:iconTint="@color/black" />
+                app:iconTint="@color/white" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/log_in_with_apple_button"
@@ -116,10 +136,10 @@ tools:context=".SignIn">
                 style="@style/Widget.MaterialComponents.Button.Icon"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:backgroundTint="@color/light_gray"
+                android:backgroundTint="@color/gray"
                 android:text="Log in with Apple"
-                android:textColor="@color/black"
-                app:iconTint="@color/black"
+                android:textColor="@color/white"
+                app:iconTint="@color/white"
                 android:textSize="14sp"
                 />
 
@@ -275,6 +295,7 @@ tools:context=".SignIn">
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/sign_in_remember_me_layout" />
         <LinearLayout
+            android:id="@+id/dontHaveLayout"
             android:layout_width="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintStart_toStartOf="parent"
@@ -298,8 +319,15 @@ tools:context=".SignIn">
                 android:text="Sign Up"/>
 
         </LinearLayout>
+        <View
+            app:layout_constraintTop_toBottomOf="@id/dontHaveLayout"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:background="@color/white"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_gravity="center"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </ScrollView>
 

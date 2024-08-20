@@ -7,7 +7,7 @@ public class UserModel {
     private String password;
     private String gender;
     private String birthdate;
-    private String verified;
+    private String verified="";
     private String profileImage="";
 
     // Default constructor is required for calls to DataSnapshot.getValue(User.class)

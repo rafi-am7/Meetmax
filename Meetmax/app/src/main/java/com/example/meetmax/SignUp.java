@@ -1,13 +1,18 @@
 package com.example.meetmax;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -27,6 +32,7 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -53,6 +59,8 @@ public class SignUp extends AppCompatActivity {
     FirebaseFirestore firestore;
     FirebaseAuth firebaseAuth;
     TextInputLayout emailLayout, fullnameLayout, passwordLayout, genderLayout, dobLayout;
+    ProgressBar progressBar;
+    View overlay;
     private static final String KEY_NAME = "Name", KEY_EMAIL = "Email", KEY_PASS = "Password",
             KEY_GENDER = "Gender", KEY_DOB = "DoB", KEY_VERIFY = "Verified", KEY_UID = "Uid";
     String verified,uid;
@@ -67,6 +75,13 @@ public class SignUp extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        if (checkSignInState()) {
+            // User is already signed in, redirect to MainActivity
+            startActivity(new Intent(SignUp.this, MainActivity.class));
+            finish();
+            return; // Prevent further execution of onCreate
+        }
+
         fullNameEditText=findViewById(R.id.sign_up_fullname_textview);
         emailEditText=findViewById(R.id.sign_up_email_text_view);
         passwordEditText=findViewById(R.id.sign_up_password_text_view);
@@ -76,6 +91,8 @@ public class SignUp extends AppCompatActivity {
         signInButton=findViewById(R.id.sign_in_button);
         dateOfBirthButton=findViewById(R.id.date_of_birth_button);
         genderRadioGroup = findViewById(R.id.sign_up_gender_radio_group);
+        progressBar = findViewById(R.id.progress_bar);
+        overlay = findViewById(R.id.overlay);
 
         emailLayout = findViewById(R.id.sign_up_email);
         fullnameLayout = findViewById(R.id.sign_up_full_name);
@@ -164,6 +181,7 @@ public class SignUp extends AppCompatActivity {
     {
         Intent intent = new Intent(SignUp.this, SignIn.class);
         startActivity(intent);
+        finish();
     }
     void signUp() {
         fullName = fullNameEditText.getText().toString();
@@ -209,23 +227,42 @@ public class SignUp extends AppCompatActivity {
             return;
         }
 
+        // Show the ProgressBar and overlay, and disable other inputs
+        progressBar.setVisibility(View.VISIBLE);
+        overlay.setVisibility(View.VISIBLE);
+
+        signUpButton.setEnabled(false);
+        logInWithGoogleButton.setEnabled(false);
+        logInWithAppleButton.setEnabled(false);
+        dateOfBirthButton.setEnabled(false);
+        languageTextView.setEnabled(false);
+
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        // Hide the ProgressBar and overlay, and re-enable inputs
+                        progressBar.setVisibility(View.GONE);
+                        overlay.setVisibility(View.GONE);
+                        signUpButton.setEnabled(true);
+                        logInWithGoogleButton.setEnabled(true);
+                        logInWithAppleButton.setEnabled(true);
+                        dateOfBirthButton.setEnabled(true);
+                        languageTextView.setEnabled(true);
+
                         if (task.isSuccessful()) {
                             uid = firebaseAuth.getCurrentUser().getUid();
 
-                            UserModel user = new UserModel(uid,fullName, email, password, gender, birthdate, verified);
+                            UserModel user = new UserModel(uid, fullName, email, password, gender, birthdate, verified);
 
                             firestore.collection("Users").document(uid).set(user)
                                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(SignUp.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
-                                                startActivity(new Intent(SignUp.this, MainActivity.class));
-                                                finish();
+                                                saveSignInState(true);
+                                                sendVerificationEmail();
+
                                             } else {
                                                 Toast.makeText(SignUp.this, "Sign Up Failed!", Toast.LENGTH_SHORT).show();
                                             }
@@ -238,141 +275,7 @@ public class SignUp extends AppCompatActivity {
                 });
     }
 
-    //    void signUp()
-//    {
-//        fullName=fullNameEditText.getText().toString();
-//        email=emailEditText.getText().toString();
-//        password=passwordEditText.getText().toString();
-//        int selectedId = genderRadioGroup.getCheckedRadioButtonId();
-//        if(fullName.isEmpty()) {
-//            fullnameLayout.setError("Enter Name");
-//            fullnameLayout.requestFocus();
-//            return;
-//        }
-//
-//        if(email.isEmpty()) {
-//            emailLayout.setError("Enter Name");
-//            emailLayout.requestFocus();
-//            return;
-//        }
-//
-//        if(!Patterns.EMAIL_ADDRESS.matcher(email).matches())
-//        {
-//            emailLayout.setError("Please provide valid email");
-//            emailLayout.requestFocus();
-//            return;
-//        }
-//
-//
-//        if(password.length() < 6) {
-//            passwordLayout.setError("Minimum 6 digit");
-//            passwordLayout.requestFocus();
-//            return;
-//        }
-//
-//
-//        if(selectedId == -1) {
-//            genderLayout.setError("Select Gender");
-//            genderLayout.requestFocus();
-//            return;
-//        }
-//        RadioButton selectedRadioButton = findViewById(selectedId);
-//        String gender = selectedRadioButton.getText().toString();
-//
-//        if(Objects.equals(birthdate, "")) {
-//            Toast.makeText(SignUp.this,"Select Birthdate",Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//
-//        firebaseAuth.createUserWithEmailAndPassword(email,password)
-//                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<AuthResult> task) {
-//                        if(task.isSuccessful()) {
-//                            uid=email;
-//                           // documentReference = firestore.collection("UserID").document(uid);
-//
-//                            Map<String,Object> val = new HashMap<>();
-//                            val.put(KEY_NAME,fullName);
-//                            val.put(KEY_EMAIL,email);
-//                            val.put(KEY_PASS,password);
-//                            val.put(KEY_GENDER,gender);
-//                            val.put(KEY_DOB,birthdate);
-//                            val.put(KEY_VERIFY,verified);
-//                            firestore.collection("UserID").document().set(val).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    if(task.isSuccessful())
-//                                    {
-//                                        Toast.makeText(SignUp.this," Sign Up Successful!",Toast.LENGTH_SHORT).show();
-//                                    }
-//                                    else
-//                                    {
-//                                        Toast.makeText(SignUp.this," Sign Up Failed!",Toast.LENGTH_SHORT).show();
-//                                    }
-//
-//                                }
-//                            });
-////                            dbReference.set(val).addOnCompleteListener(new OnCompleteListener<Void>() {
-////                                @Override
-////                                public void onComplete(@NonNull Task<Void> task) {
-////                                    if(task.isSuccessful())
-////                                    {
-////                                        if(Objects.equals(position, "Director")){
-////                                            adminRef = fStore.collection("Admin").document(uid);
-////
-////                                            Map<String, Object> dir = new HashMap<>();
-////                                            dir.put(KEY_NAME,name);
-////                                            dir.put(KEY_UID, uid);
-////                                            dir.put(KEY_HID, hid);
-////                                            dir.put(KEY_EMAIL,email);
-////
-////                                            adminRef.set(dir).addOnCompleteListener(new OnCompleteListener<Void>() {
-////                                                @Override
-////                                                public void onComplete(@NonNull Task<Void> task) {
-////                                                    if (task.isSuccessful()) {
-////                                                        Toast.makeText(SignUpUserInputActivity.this, "SignUp complete. Data sent to Admin for validation", Toast.LENGTH_LONG).show();
-////                                                        startActivity(new Intent(SignUpUserInputActivity.this, SignInActivity.class));
-////                                                        finish();
-////                                                    } else {
-////                                                        Toast.makeText(SignUpUserInputActivity.this, "Failed to Complete Request", Toast.LENGTH_LONG).show();
-////                                                    }
-////                                                }
-////                                            });
-////                                        } else {
-////                                            hospRef = fStore.collection("Hospitals").document(hid).collection(position).document(uid);
-////
-////                                            Map<String, Object> work = new HashMap<>();
-////                                            work.put(KEY_UID, uid);
-////                                            work.put(KEY_VERIFY, verified);
-////
-////                                            hospRef.set(work).addOnCompleteListener(new OnCompleteListener<Void>() {
-////                                                @Override
-////                                                public void onComplete(@NonNull Task<Void> task) {
-////                                                    if (task.isSuccessful()) {
-////                                                        Toast.makeText(SignUpUserInputActivity.this, "SignUp complete. Data sent for Director for validation", Toast.LENGTH_LONG).show();
-////                                                        startActivity(new Intent(SignUpUserInputActivity.this, SignInActivity.class));
-////                                                        finish();
-////                                                    } else {
-////                                                        Toast.makeText(SignUpUserInputActivity.this, "Failed to Complete Request", Toast.LENGTH_LONG).show();
-////                                                    }
-////                                                }
-////                                            });
-////                                        }
-////
-////                                    } else {
-////                                        Toast.makeText(SignUp.this,"Failed to Complete Request", Toast.LENGTH_LONG).show();
-////                                    }
-////                                }
-////                            });
-//                        } else {
-//                            Toast.makeText(SignUp.this,"Unable to create id. Please try again",Toast.LENGTH_LONG).show();
-//                       }
-//                    }
-//                });
-//
-//
-//    }
+
     public static void setLanguage()
     {
     }
@@ -386,5 +289,39 @@ public class SignUp extends AppCompatActivity {
         finish();
 
     }
+    private void saveSignInState(boolean isSignedIn) {
+        SharedPreferences preferences = getSharedPreferences("sign_in_prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean("is_signed_in", isSignedIn);
+        editor.apply();
+    }
+    private boolean checkSignInState() {
+        SharedPreferences preferences = getSharedPreferences("sign_in_prefs", MODE_PRIVATE);
+        return preferences.getBoolean("is_signed_in", false);
+    }
+    private void sendVerificationEmail() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            user.sendEmailVerification()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                // Email sent
+                                emailEditText.setText("");
+                                fullNameEditText.setText("");
+                                passwordEditText.setText("");
+                                Toast.makeText(SignUp.this, "Verification email sent", Toast.LENGTH_SHORT).show();
+                            } else {
+                                // Email not sent
+                                Log.e(TAG, "sendEmailVerification", task.getException());
+                                Toast.makeText(SignUp.this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
+
 
 }

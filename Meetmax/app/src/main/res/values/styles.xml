@@ -1,0 +1,14 @@
+
+<resources>
+    <!-- Style for SearchView -->
+    <style name="CustomSearchView" parent="Widget.AppCompat.SearchView">
+        <!-- Background of the SearchView -->
+        <item name="android:background">@drawable/custom_search_background</item>
+        <!-- Hint color -->
+        <item name="android:textColorHint">@color/gray</item>
+        <!-- Text color -->
+        <item name="android:textColor">@color/black</item>
+        <!-- Icon tint -->
+
+    </style>
+</resources>
