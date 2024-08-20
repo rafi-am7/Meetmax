@@ -1,11 +1,16 @@
 package com.example.meetmax;
 
+import static android.app.Activity.RESULT_OK;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -19,7 +24,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -30,19 +36,26 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import adapters.CommentAdapter;
 import adapters.FeedPostAdapter;
+import adapters.StoryAdapter;
 import models.CommentModel;
 import models.FeedPostModel;
+import models.StoryModel;
 import models.UserModel;
 
 public class FeedFragment extends Fragment {
-    private RecyclerView postRecyclerView;
+    private static final int REQUEST_CODE_PICK_IMAGE = 1;
+
+    private RecyclerView postRecyclerView, storyRecyclerView;
     private FeedPostAdapter feedPostAdapter;
+    private StoryAdapter storyAdapter;
     private ArrayList<FeedPostModel> postArrayList;
     private FirebaseFirestore firestore;
-
+    private ArrayList<StoryModel> storyArrayList;
+    private ArrayList<Uri> selectedStoryImage;
 
     @Nullable
     @Override
@@ -57,15 +70,28 @@ public class FeedFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         init(view);
         loadPostDataFromFirestore();
+        loadStoryDataFromFirestore();
+
+        storyAdapter.setOnStoryClickListener(position -> {
+            if (position == 0) {
+                // Handle "Add Story" button click
+                loadImageFromGallery();
+            } else {
+                // Handle viewing the story
+                StoryModel story = storyArrayList.get(position);
+                showStoryDetails(story);
+            }
+        });
+
         feedPostAdapter.setCustomClickListener(new FeedPostAdapter.CustomClickListener() {
             @Override
             public void customOnClick(int position, View v) {
-
+                // Implement custom click logic here
             }
 
             @Override
             public void customOnLongClick(int position, View v) {
-
+                // Implement custom long click logic here
             }
 
             @Override
@@ -73,35 +99,62 @@ public class FeedFragment extends Fragment {
                 FeedPostModel feedPostModel = postArrayList.get(position);
                 handleLikeClick(feedPostModel.getPostId());
                 feedPostAdapter.notifyDataSetChanged();
-
             }
 
             @Override
             public void onCommentClick(int position) {
-
+                // Implement comment click logic here
             }
 
             @Override
             public void onShareClick(int position) {
-
+                // Implement share click logic here
             }
         });
     }
 
-    private void init(View view) {
-        postRecyclerView = view.findViewById(R.id.feed_post_recycler_view);
-        postRecyclerView.setHasFixedSize(true);
-        postRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        firestore = FirebaseFirestore.getInstance();
-
-        postArrayList = new ArrayList<>();
-        feedPostAdapter = new FeedPostAdapter(getContext(), postArrayList);
-        postRecyclerView.setAdapter(feedPostAdapter);
-
-
-
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_PICK_IMAGE && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            Uri selectedImageUri = data.getData();
+            if (selectedImageUri != null) {
+                uploadImagesAndSavePost(selectedImageUri);
+            }
+        }
     }
 
+    private void loadImageFromGallery() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_CODE_PICK_IMAGE);
+    }
+    private void uploadImagesAndSavePost(Uri selectedImageUri) {
+        final ArrayList<String> imageUrls = new ArrayList<>();
+
+            Uri imageUri = selectedImageUri;
+            StorageReference imageRef = FirebaseStorage.getInstance().getReference().child("post_images/" + UUID.randomUUID().toString());
+            imageRef.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        uploadStory(uri.toString());
+                    }))
+                    .addOnFailureListener(e -> {
+                        // Handle unsuccessful uploads
+                    });
+    }
+
+    private void uploadStory(String storyUri) {
+        String userId = getCurrentUserId();
+        String storyId = UUID.randomUUID().toString();
+
+
+        StoryModel story = new StoryModel(storyId, getCurrentUserId(), storyUri, "", "",
+                getCurrentTimestamp());
+        FirebaseFirestore.getInstance().collection("Stories").document(storyId).set(story)
+                .addOnSuccessListener(aVoid -> Toast.makeText(getContext(), "Story uploaded", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to upload story", Toast.LENGTH_SHORT).show());
+    }
 
     private void loadPostDataFromFirestore() {
         firestore.collection("Posts")
@@ -114,8 +167,6 @@ public class FeedFragment extends Fragment {
                             FeedPostModel post = document.toObject(FeedPostModel.class);
                             if (post != null) {
                                 getUserDetails(post, document.getId(), updatedPost -> {
-                                    // This callback runs when the user details are fetched
-                                    Log.d("gama", "   "+updatedPost.getPostId());
                                     postArrayList.add(updatedPost);
                                     feedPostAdapter.notifyDataSetChanged();
                                 });
@@ -123,10 +174,12 @@ public class FeedFragment extends Fragment {
                         }
                         feedPostAdapter.notifyDataSetChanged();
                     } else {
+                        Toast.makeText(getContext(), "Failed to load posts!", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
-    private void getUserDetails(FeedPostModel postModel, String postId ,OnUserDetailsFetchedListener listener) {
+
+    private void getUserDetails(FeedPostModel postModel, String postId, OnUserDetailsFetchedListener listener) {
         DocumentReference userRef = firestore.collection("Users").document(postModel.getUid());
 
         userRef.get().addOnCompleteListener(task -> {
@@ -143,12 +196,11 @@ public class FeedFragment extends Fragment {
                     Toast.makeText(getContext(), "Illegal User!", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                Toast.makeText(getContext(), "Failed to load!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Failed to load user details!", Toast.LENGTH_SHORT).show();
             }
         });
     }
 
-    // Define the callback interface
     interface OnUserDetailsFetchedListener {
         void onUserDetailsFetched(FeedPostModel postModel);
     }
@@ -158,60 +210,57 @@ public class FeedFragment extends Fragment {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         }
-        else return "";
         LocalDateTime inputTime = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             inputTime = LocalDateTime.parse(timestamp, formatter);
         }
-        else return "";
+        LocalDateTime now = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            now = LocalDateTime.now();
+        }
+        Duration duration = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            duration = Duration.between(inputTime, now);
+        }
 
-        LocalDateTime now = LocalDateTime.now();
-        Duration duration = Duration.between(inputTime, now);
-
-        long hours = duration.toHours();
-        long minutes = duration.toMinutes() % 60;
-        long seconds = duration.getSeconds() % 60;
-        String res="";
-        if(hours!=0){
-            res+=hours;
-            res+="h";
+        long hours = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            hours = duration.toHours();
         }
-        else if(minutes!=0){
-            res+=minutes;
-            res+="m";
+        long minutes = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            minutes = duration.toMinutes() % 60;
         }
-        else {
-            res += seconds;
-            res+="s";
+        long seconds = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            seconds = duration.getSeconds() % 60;
         }
-        //Log.d("gama", res);
-            // Format the result as "Xh Ym Zs"
+        String res = "";
+        if (hours != 0) {
+            res += hours + "h";
+        } else if (minutes != 0) {
+            res += minutes + "m";
+        } else {
+            res += seconds + "s";
+        }
         return res;
-
     }
-
-
-
-
 
     public static String getCurrentUserId() {
         FirebaseAuth auth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = auth.getCurrentUser();
-
-        if (currentUser != null) {
-            return currentUser.getUid(); // Returns the UID of the currently logged-in user
-        } else {
-            return null; // Return null if no user is logged in
-        }
+        return currentUser != null ? currentUser.getUid() : null;
     }
+
     public static String getCurrentTimestamp() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            return LocalDateTime.now().format(formatter); // Returns the current timestamp in the specified format
-        } else {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-            return sdf.format(new Date()); // Returns the timestamp for older Android versions
+        DateTimeFormatter formatter = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return LocalDateTime.now().format(formatter);
+        }
+        return "";
     }
 
     private void handleLikeClick(String postId) {
@@ -221,14 +270,12 @@ public class FeedFragment extends Fragment {
         DocumentReference userLikesRef = db.collection("Users").document(userId).collection("PostLikes").document(postId);
         DocumentReference postLikersRef = postRef.collection("Likers").document(userId);
 
-        // Check if the user has already liked the post
         postLikersRef.get().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 boolean alreadyLiked = task.getResult().exists();
                 db.runTransaction(transaction -> {
                     DocumentSnapshot postSnapshot = transaction.get(postRef);
 
-                    // Retrieve current like count and convert to integer
                     String currentLikeCountStr = postSnapshot.getString("likeCount");
                     int currentLikeCount = 0;
                     if (currentLikeCountStr != null) {
@@ -247,26 +294,58 @@ public class FeedFragment extends Fragment {
                         transaction.set(userLikesRef, new HashMap<>()); // Add post to User's PostLikes
                         transaction.update(postRef, "likeCount", String.valueOf(currentLikeCount + 1)); // Increment like count
                     }
-
                     return null;
                 }).addOnSuccessListener(aVoid -> {
-                   // feedPostAdapter.notifyDataSetChanged();
-                    Log.d("FeedFragment", alreadyLiked ? "Unliked successfully" : "Liked successfully");
-                    Toast.makeText(getContext(), alreadyLiked ? "Unliked" : "Liked", Toast.LENGTH_SHORT).show();
-                }).addOnFailureListener(e -> Log.w("FeedFragment", "Error updating like status", e));
-            } else {
-                Log.w("FeedFragment", "Error checking like status", task.getException());
+                    // Update successful
+                }).addOnFailureListener(e -> {
+                    // Handle failure
+                });
             }
         });
     }
 
+    private void showStoryDetails(StoryModel story) {
+        Intent intent = new Intent(getActivity(), StoryDetailsActivity.class);
+        intent.putExtra("STORY_ID", story.getStoryId());
+        startActivity(intent);
+    }
 
+    private void init(View view) {
+        firestore = FirebaseFirestore.getInstance();
+        postArrayList = new ArrayList<>();
+        selectedStoryImage = new ArrayList<>();
 
+        postRecyclerView = view.findViewById(R.id.feed_post_recycler_view);
+        postRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        feedPostAdapter = new FeedPostAdapter(getContext(),postArrayList);
+        postRecyclerView.setAdapter(feedPostAdapter);
 
+        storyArrayList = new ArrayList<>();
+        storyRecyclerView = view.findViewById(R.id.story_recylerview);
+        storyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        storyAdapter = new StoryAdapter(getContext(),storyArrayList);
+        storyRecyclerView.setAdapter(storyAdapter);
+    }
 
-
-
-
-
-
+    private void loadStoryDataFromFirestore() {
+        storyArrayList.clear();
+        storyArrayList.add(new StoryModel());
+        firestore.collection("Stories")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        List<DocumentSnapshot> documents = task.getResult().getDocuments();
+                        //storyArrayList.clear(); // Clear existing data
+                        for (DocumentSnapshot document : documents) {
+                            StoryModel story = document.toObject(StoryModel.class);
+                            if (story != null) {
+                                storyArrayList.add(story);
+                            }
+                        }
+                        storyAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to load stories!", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 }
