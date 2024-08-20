@@ -10,22 +10,7 @@
         android:background="@color/white"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <ProgressBar
-            android:id="@+id/post_add_progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:visibility="gone"
-            android:indeterminateTint="@color/blue"
-            tools:ignore="MissingConstraints" />
 
-        <View
-            android:id="@+id/post_add_overlay"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#80000000"
-            android:visibility="gone"
-            android:layout_gravity="center"/>
         <Toolbar
             android:id="@+id/feed_tool_bar"
             android:layout_width="match_parent"
@@ -66,6 +51,22 @@
             </RelativeLayout>
         </Toolbar>
 
+        <ProgressBar
+            android:id="@+id/post_add_progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            android:indeterminateTint="@color/blue"
+            tools:ignore="MissingConstraints" />
+
+        <View
+            android:id="@+id/post_add_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80000000"
+            android:visibility="gone"
+            android:layout_gravity="center"/>
         <RelativeLayout
             android:paddingLeft="10dp"
             android:paddingRight="10dp"

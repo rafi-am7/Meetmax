@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 else if(item.getItemId()==R.id.nav_menu_notifications)
                 {
-                    replaceFragment(postAddFragment);
+                    replaceFragment(notificationsFragment);
                 }
                 else if(item.getItemId()==R.id.nav_menu_settings)
                 {
